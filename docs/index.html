@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reno Math — Make-Ready Rehab Budget Builder</title>
+<meta name="description" content="Room-by-room rehab budgeting for buy-renovate-rent investors. Cosmetics vs. systems, contingency math, and the 70% rule — before the contractor's quote hypnotizes you.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F3522">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+:root{
+  --green:#1F3522; --ivory:#F5F2E8; --gold:#B49A5B;
+  --oxblood:#5C2A2A; --charcoal:#2C2C2C; --paper:#FBF9F1;
+  --line:#D8CFB8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--ivory);color:var(--charcoal);line-height:1.55}
+.sans,button,input,select{font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+header.hero{background:linear-gradient(160deg,#1F3522 0%,#16281a 60%,#2C2C2C 100%);color:var(--ivory);padding:2.6rem 1.25rem 2.2rem;text-align:center;border-bottom:4px solid var(--gold)}
+header.hero .kicker{color:var(--gold);letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;margin-bottom:.6rem}
+header.hero h1{margin:.2rem 0 .5rem;font-size:2.3rem;letter-spacing:.02em;font-weight:700}
+header.hero h1 .amp{color:var(--gold)}
+header.hero p{max-width:660px;margin:.6rem auto 0;font-size:1.02rem;color:#EDE6D2;font-style:italic}
+.wrap{max-width:1060px;margin:0 auto;padding:1.5rem 1.25rem 3rem}
+.method{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--oxblood);padding:1.1rem 1.3rem;margin:1.6rem 0;border-radius:2px}
+.method h2{margin:0 0 .4rem;font-size:1.15rem;color:var(--oxblood)}
+.method p{margin:.45rem 0;font-size:.98rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1rem;margin:1.2rem 0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1.1rem 1.2rem;box-shadow:0 1px 0 rgba(31,53,34,.08)}
+.card h3{margin:0 0 .2rem;font-size:1.05rem;color:var(--green);border-bottom:2px solid var(--gold);padding-bottom:.45rem}
+.card .sub{font-size:.82rem;color:#6d6455;margin:0 0 .7rem;font-style:italic}
+.field{margin:.55rem 0}
+.field label{display:block;font-size:.82rem;font-weight:600;color:#4a4438;margin-bottom:.2rem}
+.field input,.field select{width:100%;padding:.55rem .65rem;font-size:1rem;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--charcoal)}
+.field input:focus,.field select:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+.field .hint{font-size:.75rem;color:#8a8172;margin-top:.15rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+.secttl{margin:2rem 0 .4rem;font-size:1.35rem;color:var(--green)}
+.secttl .n{color:var(--gold)}
+.sectsub{font-size:.92rem;color:#6d6455;font-style:italic;margin:0 0 .8rem}
+.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.9rem}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:.85rem 1rem}
+.item.off{opacity:.45}
+.item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
+.item-name{font-weight:700;color:var(--green);font-size:.98rem}
+.item-name .tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:2px;padding:.1rem .4rem;margin-left:.5rem;vertical-align:middle}
+.tag.cos{background:#E9DFC6;color:#5C4A1E}
+.tag.sys{background:#E4CFCF;color:#5C2A2A}
+.item-note{font-size:.78rem;color:#8a8172;margin:.15rem 0 0;max-width:220px}
+.item-lvl{flex-shrink:0}
+.item-lvl select{padding:.45rem .5rem;font-size:.88rem;border:1px solid var(--line);border-radius:3px;background:#fff;font-weight:700}
+.item-ctl{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.7rem}
+.item-ctl .field{margin:0}
+.line-total{margin-top:.6rem;text-align:right;font-size:1.15rem;font-weight:700;color:var(--oxblood)}
+.customrow{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.customrow input,.customrow select{padding:.55rem .65rem;font-size:.95rem;border:1px solid var(--line);border-radius:3px;background:#fff}
+.verdict{border-radius:3px;padding:1.4rem 1.5rem;margin:1.6rem 0 1rem;color:var(--ivory);border:3px solid var(--gold)}
+.verdict h2{margin:0 0 .3rem;font-size:1.7rem}
+.verdict p.lede{margin:.2rem 0 1rem;font-size:1.02rem;color:#F0EAD6;font-style:italic}
+.verdict.go{background:linear-gradient(150deg,#1F3522,#2c4a30)}
+.verdict.meh{background:linear-gradient(150deg,#4a3a1e,#5C2A2A)}
+.verdict.no{background:linear-gradient(150deg,#4a2323,#2C2C2C)}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}
+.chip{background:rgba(245,242,232,.1);border:1px solid rgba(180,154,91,.55);border-radius:3px;padding:.7rem .8rem}
+.chip .v{font-size:1.35rem;font-weight:700;color:#fff}
+.chip .l{font-size:.76rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.splitbar{display:flex;height:30px;border-radius:3px;overflow:hidden;margin:.8rem 0;border:1px solid rgba(180,154,91,.6)}
+.splitbar .c{background:var(--gold)}
+.splitbar .s{background:var(--oxblood)}
+.splitleg{display:flex;gap:1.4rem;font-size:.88rem;flex-wrap:wrap}
+.splitleg .dot{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:.35rem;vertical-align:baseline}
+.warnline{background:#F3E9CF;border:1px solid var(--gold);border-left:5px solid var(--gold);padding:.8rem 1rem;margin:1rem 0;font-size:.92rem;border-radius:2px}
+.dangerline{background:#F6E2DE;border:1px solid var(--oxblood);border-left:5px solid var(--oxblood);padding:.8rem 1rem;margin:1rem 0;font-size:.92rem;border-radius:2px}
+table.cmp{width:100%;border-collapse:collapse;margin:1rem 0;background:var(--paper);font-size:.95rem}
+table.cmp th,table.cmp td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:right}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+table.cmp thead th{background:var(--green);color:var(--ivory);font-size:.85rem;letter-spacing:.04em}
+table.cmp tr.section td{background:#EFE8D4;font-weight:700;color:var(--green);text-align:left;letter-spacing:.03em}
+details.how{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1rem 1.3rem;margin:1.2rem 0}
+details.how summary{cursor:pointer;font-weight:700;color:var(--green);font-size:1.02rem}
+details.how li{margin:.35rem 0;font-size:.93rem}
+.saved{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:1.1rem 1.3rem;margin:1.2rem 0}
+.saved h3{margin:0 0 .6rem;color:var(--green)}
+.save-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
+.save-row input{flex:1;min-width:180px;padding:.55rem .65rem;font-size:1rem;border:1px solid var(--line);border-radius:3px}
+button{cursor:pointer;border:none;border-radius:3px;padding:.6rem 1.1rem;font-size:.95rem;font-weight:700;letter-spacing:.02em}
+.btn-gold{background:var(--gold);color:var(--green)}
+.btn-gold:hover{background:#c4a968}
+.btn-green{background:var(--green);color:var(--ivory)}
+.btn-green:hover{background:#2b4a30}
+.btn-ghost{background:transparent;color:var(--oxblood);border:1px solid var(--oxblood);padding:.4rem .8rem;font-size:.82rem}
+.btn-ghost:hover{background:var(--oxblood);color:var(--ivory)}
+.scen{padding:.6rem .2rem;border-bottom:1px solid var(--line)}
+.scen .nm{font-weight:700}
+.scen .dt{font-size:.78rem;color:#8a8172}
+.scen .stats{font-size:.85rem;margin:.25rem 0}
+.scen .acts{display:flex;gap:.4rem;margin-top:.3rem}
+footer{margin-top:2.5rem;padding-top:1.2rem;border-top:2px solid var(--gold);font-size:.82rem;color:#6d6455;text-align:center}
+footer .fine{font-style:italic;margin-top:.4rem}
+@media(max-width:640px){
+  header.hero h1{font-size:1.75rem}
+  table.cmp{font-size:.82rem}
+  table.cmp th,table.cmp td{padding:.4rem .45rem}
+  .row3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker sans">The Bull Brew &middot; Daily Tool No. 6</div>
+  <h1>Reno <span class="amp">Math</span></h1>
+  <p>The make-ready rehab budget builder. Price the whole renovation room by room, keep cosmetics and systems in separate columns, and know your number before the contractor's quote hypnotizes you.</p>
+</header>
+<div class="wrap">
+
+  <div class="method">
+    <h2>The method</h2>
+    <p>The perfect deal is a <strong>grandmother house</strong>: ugly wallpaper and a 1970s kitchen on top of a good roof and a young furnace. <strong>Cosmetics are the discount. Systems are the risk.</strong></p>
+    <p>So this tool keeps them in separate columns. If the systems column starts eating the budget, the deal isn't a cosmetic flip with a little paint — it's a construction project wearing a costume, and it should be priced like one.</p>
+    <p style="margin-bottom:0"><em>Rule of thumb baked in everywhere below: a rehab budget without contingency is a wish, not a budget.</em></p>
+  </div>
+
+  <h2 class="secttl"><span class="n">I.</span> The work, room by room</h2>
+  <p class="sectsub">Set a finish level per line — Rental grade (durable, cheap), Mid (solid), Flip (retail-ready). Type a custom number to override any preset. Switch a line Off to skip it.</p>
+  <div class="grid" style="margin-top:0">
+    <div class="card">
+      <h3>Cosmetics <span style="font-weight:400;font-size:.82rem;color:#8a8172">— the discount</span></h3>
+      <p class="sub">The ugly that makes it cheap. Budget this generously; it's where the value is created.</p>
+      <div id="cosList" class="items" style="grid-template-columns:1fr"></div>
+    </div>
+    <div class="card">
+      <h3>Systems <span style="font-weight:400;font-size:.82rem;color:#8a8172">— the risk</span></h3>
+      <p class="sub">The invisible stuff that kills deals. Price it honestly, then verify with a real quote.</p>
+      <div id="sysList" class="items" style="grid-template-columns:1fr"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Your own line items</h3>
+    <p class="sub">The weird stuff every house has — the leaning fence, the mystery smell, the shed full of raccoons.</p>
+    <div class="customrow sans">
+      <input id="custName" type="text" placeholder="Line item name" maxlength="60" style="flex:2;min-width:160px">
+      <input id="custCost" type="number" min="0" step="100" placeholder="$ cost" style="flex:1;min-width:110px">
+      <select id="custCat" style="flex:1;min-width:130px">
+        <option value="cos">Cosmetic</option>
+        <option value="sys">System</option>
+      </select>
+      <button class="btn-green sans" id="custAdd" type="button">Add line</button>
+    </div>
+    <div id="custList"></div>
+  </div>
+
+  <h2 class="secttl"><span class="n">II.</span> The math on top</h2>
+  <p class="sectsub">The stuff contractors forget to mention until the invoice.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Finish level, all at once</h3>
+      <p class="sub">Rental-grade everything? One tap.</p>
+      <div class="save-row sans" style="margin-bottom:0">
+        <button class="btn-green" id="setRental" type="button">All rental</button>
+        <button class="btn-green" id="setMid" type="button">All mid</button>
+        <button class="btn-green" id="setFlip" type="button">All flip</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Padding &amp; overhead</h3>
+      <p class="sub">The two line items nobody wants to admit exist.</p>
+      <div class="row3">
+        <div class="field"><label for="sqft">House sq ft</label><input id="sqft" type="number" min="0" step="50" value="1500"></div>
+        <div class="field"><label for="contPct">Contingency (%)</label><input id="contPct" type="number" min="0" max="60" step="1" value="15"><div class="hint">15% minimum. 20%+ for 1970s surprises.</div></div>
+        <div class="field"><label for="pmPct">GC / PM markup (%)</label><input id="pmPct" type="number" min="0" max="40" step="1" value="0"><div class="hint">0 if you're the GC. 10–15 if you're not.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict go" id="verdict">
+    <h2 id="verdictTitle">Your rehab budget</h2>
+    <p class="lede" id="verdictLede">Set the finish levels above — the number lands here.</p>
+    <div class="chips">
+      <div class="chip"><div class="v" id="chipTotal">–</div><div class="l sans">All-in rehab budget</div></div>
+      <div class="chip"><div class="v" id="chipSqft">–</div><div class="l sans">Cost per sq ft</div></div>
+      <div class="chip"><div class="v" id="chipHard">–</div><div class="l sans">Hard costs (no padding)</div></div>
+      <div class="chip"><div class="v" id="chipPad">–</div><div class="l sans">Contingency + markup</div></div>
+    </div>
+    <div style="margin-top:1.2rem">
+      <div class="splitleg sans">
+        <span><span class="dot" style="background:var(--gold)"></span>Cosmetics <strong id="legCos">$–</strong></span>
+        <span><span class="dot" style="background:var(--oxblood)"></span>Systems <strong id="legSys">$–</strong></span>
+      </div>
+      <div class="splitbar"><div class="c" id="splitCos"></div><div class="s" id="splitSys"></div></div>
+      <p class="sans" id="splitNote" style="font-size:.9rem;color:#F0EAD6;font-style:italic;margin:.4rem 0 0"></p>
+    </div>
+  </div>
+
+  <div id="sysWarn"></div>
+
+  <h2 class="secttl"><span class="n">III.</span> Does the deal still work?</h2>
+  <p class="sectsub">The rehab budget is only half the underwriting. The other half is the 70% rule.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>The 70% rule check</h3>
+      <p class="sub">Max offer = ARV × 70% − rehab − everything else it costs you.</p>
+      <div class="field"><label for="arv">After-repair value / ARV ($)</label><input id="arv" type="number" min="0" step="1000" value="350000"></div>
+      <div class="field"><label for="buyPrice">Purchase price ($)</label><input id="buyPrice" type="number" min="0" step="1000" value="220000"></div>
+      <div class="field"><label for="softCosts">Closing + holding + resale costs ($)</label><input id="softCosts" type="number" min="0" step="500" value="25000"><div class="hint">Buy-side closing, 6 months of carry, sell-side commission &amp; closing.</div></div>
+    </div>
+    <div class="card">
+      <h3>The verdict</h3>
+      <p class="sub">Live off your numbers above.</p>
+      <table class="cmp sans">
+        <tbody id="dealBody"></tbody>
+      </table>
+      <p id="dealVerdict" style="font-size:1rem"></p>
+    </div>
+  </div>
+
+  <details class="how">
+    <summary>How the math works (no black boxes)</summary>
+    <ul>
+      <li>Each line's cost = preset for its finish level × quantity (where the line has one). A typed custom number always wins over the preset.</li>
+      <li><strong>Hard costs</strong> = every line added up, split into Cosmetics and Systems columns.</li>
+      <li><strong>Padding</strong> = contingency % + GC/PM markup %, both applied to hard costs. <strong>All-in budget</strong> = hard costs + padding.</li>
+      <li><strong>Max offer (70% rule)</strong> = ARV × 0.70 − all-in rehab − soft costs (closing, holding, resale). Offer above this and the flip margin is gone before the first dumpster arrives.</li>
+      <li><strong>Projected profit</strong> = ARV − purchase price − all-in rehab − soft costs. A 15–20% margin of the ARV is the comfort zone; under 10% and one surprise owns you.</li>
+      <li>The <strong>systems-share flag</strong> trips when systems pass 40% of hard costs. The grandmother-house ideal is cosmetics-heavy: the ugly you can see is the discount you can price.</li>
+    </ul>
+  </details>
+
+  <div class="warnline"><strong>Presets are starting points, not quotes.</strong> They reflect typical U.S. investor-grade pricing — your market, your contractor, and the house's actual condition move every number. Walk the property with a contractor before money moves.</div>
+
+  <div class="saved">
+    <h3>Saved budgets</h3>
+    <div class="save-row">
+      <input id="scenName" type="text" placeholder="Name this budget — e.g. 'Oak St reno, rental grade'" maxlength="60">
+      <button class="btn-gold sans" id="saveBtn" type="button">Save budget</button>
+      <button class="btn-green sans" id="copyBtn" type="button">Copy summary</button>
+    </div>
+    <div id="scenList"><p style="font-size:.88rem;color:#8a8172;margin:.3rem 0">No saved budgets yet. When a scope pencils out, park it here.</p></div>
+  </div>
+
+  <footer>
+    <div>Built by <strong>The Bull Brew</strong> &middot; one useful tool, every day.</div>
+    <div class="fine">Educational estimates only — verify every number yourself. Not financial advice, not a contractor quote.</div>
+  </footer>
+</div>
+<script>
+"use strict";
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
+
+/* ---- line-item catalog ----
+   base: [rental, mid, flip] flat cost
+   rate: [rental, mid, flip] per-unit cost with qty
+*/
+var ITEMS=[
+ {id:"kitchen",name:"Kitchen",cat:"cos",base:[6000,14000,26000],def:1,note:"Cabinets, counters, sink, backsplash."},
+ {id:"fullbath",name:"Full bath",cat:"cos",rate:[3500,6500,12000],qty:{label:"# of full baths",def:2},def:1,note:"Tile, vanity, fixtures, tub or shower."},
+ {id:"powder",name:"Powder room",cat:"cos",base:[1800,3000,5000],def:0,note:"Half baths are cheaper — fewer wet walls."},
+ {id:"flooring",name:"Flooring",cat:"cos",rate:[4,7,12],qty:{label:"Sq ft of flooring",def:1500},def:1,note:"Rental = LVP. Flip = hardwood where it counts."},
+ {id:"paintin",name:"Interior paint",cat:"cos",rate:[400,700,1200],qty:{label:"# of rooms",def:8},def:1,note:"Whole house, two coats, ceilings included."},
+ {id:"appliances",name:"Appliance package",cat:"cos",base:[2500,4500,8000],def:1,note:"Fridge, range, dishwasher, microwave."},
+ {id:"demo",name:"Demo & haul-away",cat:"cos",base:[1000,2500,5000],def:1,note:"Dumpsters are never as cheap as the quote."},
+ {id:"exterior",name:"Exterior & curb appeal",cat:"cos",base:[2000,5000,10000],def:1,note:"Paint, siding repair, landscaping, gutters."},
+ {id:"electrical",name:"Electrical",cat:"sys",base:[1800,6000,14000],def:1,note:"Panel swap → partial rewire → full rewire."},
+ {id:"plumbing",name:"Plumbing",cat:"sys",base:[1200,3500,9000],def:1,note:"Supply, drains, fixtures rough-in."},
+ {id:"hvac",name:"Furnace / HVAC",cat:"sys",base:[5500,8500,13000],def:1,note:"Full system replacement. Repair is cheaper — this is replacement."},
+ {id:"waterheater",name:"Water heater",cat:"sys",base:[1200,1800,2600],def:1,note:"Tank. Tankless costs more — add it as a custom line."},
+ {id:"roof",name:"Roof",cat:"sys",base:[7500,11500,17000],def:0,note:"Only if it needs it. A good roof is the whole thesis."},
+ {id:"windows",name:"Windows",cat:"sys",rate:[280,480,720],qty:{label:"# of windows",def:12},def:0,note:"Full replacement per window, installed."}
+];
+var LEVELS=["Off","Rental","Mid","Flip"];
+function $(id){return document.getElementById(id);}
+function money(x){var neg=x<0;x=Math.abs(Math.round(x));return (neg?"-$":"$")+x.toLocaleString("en-US");}
+function pct1(x){return (x*100).toFixed(0)+"%";}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+/* ---- render item rows ---- */
+function itemRow(it){
+  var tag=it.cat==="cos"?'<span class="tag cos">Cosmetic</span>':'<span class="tag sys">System</span>';
+  var opts=LEVELS.map(function(l,i){return '<option value="'+i+'"'+(i===it.def?" selected":"")+'>'+l+'</option>';}).join("");
+  var qtyHtml=it.qty?'<div class="field"><label>'+it.qty.label+'</label><input type="number" min="0" step="1" value="'+it.qty.def+'" data-qty="'+it.id+'"></div>':"";
+  return '<div class="item" data-item="'+it.id+'">'+
+    '<div class="item-top"><div><div class="item-name">'+it.name+tag+'</div>'+
+    (it.note?'<div class="item-note">'+it.note+'</div>':"")+'</div>'+
+    '<div class="item-lvl"><select data-lvl="'+it.id+'">'+opts+'</select></div></div>'+
+    '<div class="item-ctl">'+qtyHtml+
+    '<div class="field"><label>Custom $ (overrides preset)</label><input type="number" min="0" step="100" placeholder="preset" data-custom="'+it.id+'"></div></div>'+
+    '<div class="line-total sans" data-total="'+it.id+'">–</div></div>';
+}
+function renderItems(){
+  $("cosList").innerHTML=ITEMS.filter(function(i){return i.cat==="cos";}).map(itemRow).join("");
+  $("sysList").innerHTML=ITEMS.filter(function(i){return i.cat==="sys";}).map(itemRow).join("");
+}
+
+/* ---- custom lines ---- */
+var CUSTOM=[];
+function renderCustom(){
+  var el=$("custList");
+  if(!CUSTOM.length){el.innerHTML="";return;}
+  el.innerHTML=CUSTOM.map(function(c,i){
+    return '<div class="scen"><div class="nm sans">'+esc(c.name)+' <span class="tag '+(c.cat==="cos"?"cos":"sys")+'">'+(c.cat==="cos"?"Cosmetic":"System")+'</span></div>'+
+    '<div class="dt sans">'+money(c.cost)+'</div>'+
+    '<div class="acts"><button class="btn-ghost sans" data-cdel="'+i+'">Remove</button></div></div>';
+  }).join("");
+  el.querySelectorAll("[data-cdel]").forEach(function(b){
+    b.onclick=function(){CUSTOM.splice(parseInt(b.getAttribute("data-cdel"),10),1);renderCustom();recalc();};
+  });
+}
+$("custAdd").onclick=function(){
+  var name=$("custName").value.trim(),cost=parseFloat($("custCost").value);
+  if(!name||!(cost>0)){return;}
+  CUSTOM.push({name:name,cost:cost,cat:$("custCat").value});
+  $("custName").value="";$("custCost").value="";
+  renderCustom();recalc();
+};
+
+/* ---- math ---- */
+function lineCost(it){
+  var lvl=parseInt(document.querySelector('[data-lvl="'+it.id+'"]').value,10);
+  if(lvl===0)return {cost:0,off:true};
+  var cust=parseFloat(document.querySelector('[data-custom="'+it.id+'"]').value);
+  if(isFinite(cust)&&cust>0)return {cost:cust,off:false};
+  var unit=it.base?it.base[lvl-1]:it.rate[lvl-1];
+  var q=1;
+  if(it.qty){q=parseFloat(document.querySelector('[data-qty="'+it.id+'"]').value);q=isFinite(q)?Math.max(0,q):0;}
+  return {cost:unit*q,off:false};
+}
+function recalc(){
+  var hardCos=0,hardSys=0;
+  ITEMS.forEach(function(it){
+    var r=lineCost(it);
+    var el=document.querySelector('[data-item="'+it.id+'"]');
+    var totEl=document.querySelector('[data-total="'+it.id+'"]');
+    if(r.off){el.classList.add("off");totEl.textContent="skipped";}
+    else{el.classList.remove("off");totEl.textContent=money(r.cost);}
+    if(it.cat==="cos")hardCos+=r.cost;else hardSys+=r.cost;
+  });
+  CUSTOM.forEach(function(c){if(c.cat==="cos")hardCos+=c.cost;else hardSys+=c.cost;});
+  var hard=hardCos+hardSys;
+  var cont=Math.max(0,parseFloat($("contPct").value)||0)/100;
+  var pm=Math.max(0,parseFloat($("pmPct").value)||0)/100;
+  var pad=hard*(cont+pm);
+  var total=hard+pad;
+  var sqft=Math.max(0,parseFloat($("sqft").value)||0);
+  var sysShare=hard>0?hardSys/hard:0;
+  var cosShare=hard>0?hardCos/hard:0;
+
+  $("chipTotal").textContent=money(total);
+  $("chipSqft").textContent=sqft>0?money(total/sqft):"–";
+  $("chipHard").textContent=money(hard);
+  $("chipPad").textContent=money(pad);
+  $("legCos").textContent=money(hardCos);
+  $("legSys").textContent=money(hardSys);
+  $("splitCos").style.width=(cosShare*100)+"%";
+  $("splitSys").style.width=(sysShare*100)+"%";
+  $("splitNote").textContent=sysShare>=0.4
+    ?"Systems are "+pct1(sysShare)+" of the hard costs. That's a construction project wearing a cosmetic costume — verify every system line with a real quote."
+    :"Cosmetics lead at "+pct1(cosShare)+" of the hard costs. That's the grandmother-house shape: the ugly you can see, on top of bones you trust.";
+
+  var w=$("sysWarn");
+  if(sysShare>=0.5&&hard>0){
+    w.innerHTML='<div class="dangerline"><strong>Systems-majority budget.</strong> Over half of this rehab is invisible work. The margin of error on system quotes is where flips go to die — get contractor pricing in writing before you believe this number.</div>';
+  }else if(sysShare>=0.4&&hard>0){
+    w.innerHTML='<div class="warnline"><strong>Systems-heavy.</strong> '+pct1(sysShare)+' of hard costs sit in systems. Cosmetics are predictable; systems are where the surprises live. Consider bumping contingency to 20%.</div>';
+  }else{w.innerHTML="";}
+
+  /* deal check */
+  var arv=Math.max(0,parseFloat($("arv").value)||0);
+  var price=Math.max(0,parseFloat($("buyPrice").value)||0);
+  var soft=Math.max(0,parseFloat($("softCosts").value)||0);
+  var mao=arv*0.7-total-soft;
+  var profit=arv-price-total-soft;
+  var margin=arv>0?profit/arv:0;
+  var tb="";
+  tb+='<tr class="section"><td colspan="2">THE 70% RULE</td></tr>';
+  tb+='<tr><td>Max allowable offer</td><td>'+money(mao)+'</td></tr>';
+  tb+='<tr><td>Your purchase price</td><td>'+money(price)+'</td></tr>';
+  tb+='<tr><td>Offer vs. max</td><td style="font-weight:700;color:'+(price<=mao?"#1F5C2A":"#5C2A2A")+'">'+(price<=mao?money(mao-price)+" under":"OVER by "+money(price-mao))+'</td></tr>';
+  tb+='<tr class="section"><td colspan="2">PROJECTED PROFIT</td></tr>';
+  tb+='<tr><td>Profit at ARV</td><td style="font-weight:700;color:'+(profit>=0?"#1F5C2A":"#5C2A2A")+'">'+money(profit)+'</td></tr>';
+  tb+='<tr><td>Margin on ARV</td><td>'+pct1(margin)+'</td></tr>';
+  $("dealBody").innerHTML=tb;
+  var dv=$("dealVerdict"),v=$("verdict");
+  v.className="verdict";
+  if(hard<=0){
+    v.classList.add("meh");
+    $("verdictTitle").textContent="Your rehab budget";
+    $("verdictLede").textContent="Turn some lines on above — right now the budget is a blank page.";
+    dv.textContent="Add the work first; the deal math waits for it.";
+  }else if(price<=mao&&margin>=0.15){
+    v.classList.add("go");
+    $("verdictTitle").textContent=money(total)+" — and the deal works.";
+    $("verdictLede").textContent="The rehab is priced, the 70% rule clears, and the margin has room for a surprise or two.";
+    dv.innerHTML="<strong>Green light.</strong> The offer sits inside the 70% rule and the projected margin is "+pct1(margin)+". Walk it with a contractor, then move.";
+  }else if(price<=mao&&margin>=0.08){
+    v.classList.add("meh");
+    $("verdictTitle").textContent=money(total)+" — the deal is tight.";
+    $("verdictLede").textContent="It fits the 70% rule, but the margin leaves no room for the house to surprise you.";
+    dv.innerHTML="<strong>Tight.</strong> It pencils, barely. One bad system quote and the margin is gone — negotiate the price down or shrink the scope.";
+  }else if(profit>0){
+    v.classList.add("meh");
+    $("verdictTitle").textContent=money(total)+" — thin ice.";
+    $("verdictLede").textContent="There's a profit on paper, but the 70% rule says the price is too rich for the work involved.";
+    dv.innerHTML="<strong>Thin.</strong> "+money(profit)+" of projected profit at a "+pct1(margin)+" margin. The seller's price — not your budget — is the problem.";
+  }else{
+    v.classList.add("no");
+    $("verdictTitle").textContent=money(total)+" — the deal is dead.";
+    $("verdictLede").textContent="At this price and this scope, the math doesn't survive contact with reality.";
+    dv.innerHTML="<strong>Walk.</strong> Projected loss of "+money(-profit)+". Either the price drops "+money(mao<price?price-mao:0)+", the scope shrinks, or you find the next grandmother house.";
+  }
+  return {hardCos:hardCos,hardSys:hardSys,hard:hard,pad:pad,total:total,sysShare:sysShare,mao:mao,profit:profit,margin:margin};
+}
+
+/* ---- saved budgets ---- */
+var LSKEY="reno-math-budgets-v1";
+function readScens(){try{var s=JSON.parse(localStorage.getItem(LSKEY)||"[]");return Array.isArray(s)?s:[];}catch(e){return[];}}
+function writeScens(s){localStorage.setItem(LSKEY,JSON.stringify(s));}
+function snapshotInputs(){
+  var inp={lvls:{},qtys:{},customs:{},globals:{},deal:{}};
+  ITEMS.forEach(function(it){
+    inp.lvls[it.id]=document.querySelector('[data-lvl="'+it.id+'"]').value;
+    var c=document.querySelector('[data-custom="'+it.id+'"]');if(c&&c.value!=="")inp.customs[it.id]=c.value;
+    if(it.qty){var q=document.querySelector('[data-qty="'+it.id+'"]');if(q)inp.qtys[it.id]=q.value;}
+  });
+  ["sqft","contPct","pmPct","arv","buyPrice","softCosts"].forEach(function(f){inp.globals[f]=$(f).value;});
+  inp.customLines=CUSTOM.map(function(c){return{name:c.name,cost:c.cost,cat:c.cat};});
+  return inp;
+}
+function applyInputs(inp){
+  ITEMS.forEach(function(it){
+    if(inp.lvls&&inp.lvls[it.id]!==undefined)document.querySelector('[data-lvl="'+it.id+'"]').value=inp.lvls[it.id];
+    var c=document.querySelector('[data-custom="'+it.id+'"]');c.value=(inp.customs&&inp.customs[it.id])||"";
+    if(it.qty&&inp.qtys&&inp.qtys[it.id]!==undefined)document.querySelector('[data-qty="'+it.id+'"]').value=inp.qtys[it.id];
+  });
+  if(inp.globals)Object.keys(inp.globals).forEach(function(f){if($(f))$(f).value=inp.globals[f];});
+  CUSTOM=(inp.customLines||[]).map(function(c){return{name:c.name,cost:c.cost,cat:c.cat};});
+  renderCustom();recalc();
+}
+function renderScens(){
+  var s=readScens(),el=$("scenList");
+  if(!s.length){el.innerHTML='<p style="font-size:.88rem;color:#8a8172;margin:.3rem 0">No saved budgets yet. When a scope pencils out, park it here.</p>';return;}
+  el.innerHTML=s.map(function(x,i){
+    return '<div class="scen"><div class="nm sans">'+esc(x.name)+'</div><div class="dt sans">'+x.ts+'</div>'+
+    '<div class="stats sans">Budget <strong>'+money(x.total)+'</strong> &middot; '+money(x.sqftCost)+'/sqft &middot; systems '+pct1(x.sysShare)+' &middot; profit '+money(x.profit)+'</div>'+
+    '<div class="acts"><button class="btn-ghost sans" data-load="'+i+'">Load</button><button class="btn-ghost sans" data-del="'+i+'">Delete</button></div></div>';
+  }).join("");
+  el.querySelectorAll("[data-load]").forEach(function(b){b.onclick=function(){
+    var x=readScens()[parseInt(b.getAttribute("data-load"),10)];if(x&&x.inputs)applyInputs(x.inputs);
+  };});
+  el.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){
+    var arr=readScens();arr.splice(parseInt(b.getAttribute("data-del"),10),1);writeScens(arr);renderScens();
+  };});
+}
+$("saveBtn").onclick=function(){
+  var r=recalc();
+  var name=$("scenName").value.trim()||("Budget "+(readScens().length+1));
+  var sqft=Math.max(0,parseFloat($("sqft").value)||0);
+  var s=readScens();
+  s.unshift({name:name,ts:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
+    total:r.total,sqftCost:sqft>0?r.total/sqft:0,sysShare:r.sysShare,profit:r.profit,inputs:snapshotInputs()});
+  writeScens(s);$("scenName").value="";renderScens();
+};
+$("copyBtn").onclick=function(){
+  var r=recalc();
+  var lines=["RENO MATH — rehab budget","Cosmetics: "+money(r.hardCos),"Systems: "+money(r.hardSys),
+    "Hard costs: "+money(r.hard),"Contingency + markup: "+money(r.pad),"ALL-IN: "+money(r.total),
+    "Max offer (70% rule): "+money(r.mao),"Projected profit: "+money(r.profit)];
+  var done=function(){var b=$("copyBtn"),t=b.textContent;b.textContent="Copied.";setTimeout(function(){b.textContent=t;},1600);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(lines.join("\n")).then(done,done);}
+  else{var ta=document.createElement("textarea");ta.value=lines.join("\n");document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();}
+};
+
+/* quick-set finish levels */
+function setAll(lvl){ITEMS.forEach(function(it){document.querySelector('[data-lvl="'+it.id+'"]').value=lvl;});recalc();}
+$("setRental").onclick=function(){setAll(1);};
+$("setMid").onclick=function(){setAll(2);};
+$("setFlip").onclick=function(){setAll(3);};
+
+/* wire up */
+document.addEventListener("input",function(e){
+  if(e.target.matches("[data-lvl],[data-qty],[data-custom]")||["sqft","contPct","pmPct","arv","buyPrice","softCosts"].indexOf(e.target.id)>=0)recalc();
+});
+document.addEventListener("change",function(e){
+  if(e.target.matches("[data-lvl]"))recalc();
+});
+renderItems();
+renderCustom();
+renderScens();
+recalc();
+</script>
+</body>
+</html>
